@@ -41,8 +41,7 @@ CREATE TABLE IF NOT EXISTS staging_events
     status            SMALLINT,
     ts                BIGINT,
     userAgent         TEXT,
-    userId            INTEGER,
-    PRIMARY KEY       (event_id)
+    userId            INTEGER
 )DISTSTYLE EVEN;
 """)
 
@@ -73,7 +72,8 @@ CREATE TABLE IF NOT EXISTS songplays
     artist_id         CHAR(20), 
     session_id        CHAR(20), 
     location          VARCHAR(80), 
-    user_agent        TEXT
+    user_agent        TEXT,
+    PRIMARY KEY       (songplay_id)
 );
 """)
 
@@ -84,7 +84,8 @@ CREATE TABLE IF NOT EXISTS users
     first_name       VARCHAR(80) NOT NULL, 
     last_name        VARCHAR(80) NOT NULL,
     gender           VARCHAR(80), 
-    level            CHAR(20)
+    level            CHAR(20),
+    PRIMARY KEY      (user_id)
 );
 """)
 
@@ -95,7 +96,9 @@ CREATE TABLE IF NOT EXISTS songs
     title            VARCHAR(80) NOT NULL, 
     artist_id        CHAR(20), 
     year             SMALLINT, 
-    duration         DOUBLE PRECISION
+    duration         DOUBLE PRECISION,
+    PRIMARY KEY      (song_id)
+    
 );
 """)
 
@@ -106,20 +109,22 @@ CREATE TABLE IF NOT EXISTS artists
     name             VARCHAR(80) NOT NULL, 
     location         VARCHAR(80), 
     latitude         DOUBLE PRECISION, 
-    longitude        DOUBLE PRECISION
+    longitude        DOUBLE PRECISION,
+    PRIMARY KEY      (artist_id)
 );
 """)
 
 time_table_create = ("""
 CREATE TABLE IF NOT EXISTS time
 (
-    start_time       DOUBLE PRECISION, 
+    start_time       BIGINT, 
     hour             SMALLINT, 
     day              SMALLINT, 
     week             SMALLINT, 
     month            SMALLINT, 
     year             SMALLINT, 
-    weekday          SMALLINT
+    weekday          SMALLINT,
+    PRIMARY KEY      (start_time)
 );
 """)
 
@@ -146,16 +151,17 @@ songplay_table_insert = ("""
 
 user_table_insert = ("""
 INSERT INTO users (user_id, first_name, last_name, gender, level)
-SELECT userID           AS user_id, 
+SELECT DISTINCT(userID) AS user_id, 
        firstName        AS first_name, 
        lastName         AS last_name, 
        gender           AS gender, 
        level            AS level
     FROM staging_events
+    WHERE page = 'NextSong'
 """)
 
 song_table_insert = ("""
-INSERT INTO song (song_id, title, artist_id, year, duration)
+INSERT INTO songs (song_id, title, artist_id, year, duration)
 SELECT song_id, 
        title, 
        artist_id, 
@@ -163,13 +169,34 @@ SELECT song_id,
        duration
     FROM staging_songs
 """)
-
+    
 artist_table_insert = ("""
+INSERT INTO artists (artist_id, name, location, latitude, longitude)
+SELECT DISTINCT(artist_id)   AS artist_id, 
+       artist_name           AS name,  
+       artist_location       AS location, 
+       artist_latitude       AS latitude, 
+       artist_longitude      AS longitude
+    FROM staging_songs
 """)
 
 time_table_insert = ("""
+INSERT INTO time (start_time, hour, day, week, month, year, weekday)
+SELECT  ts                                  AS start_time,
+        EXTRACT(HOUR FROM t_start_time)     AS hour,
+        EXTRACT(DAY FROM t_start_time)      AS day,
+        EXTRACT(WEEK FROM t_start_time)     AS week,
+        EXTRACT(MONTH FROM t_start_time)    AS month,
+        EXTRACT(YEAR FROM t_start_time)     AS year,
+        EXTRACT(DOW FROM t_start_time)      AS weekday
+    FROM (
+        SELECT DISTINCT(ts),
+               page,
+               '1970-01-01'::date + ts/1000 * interval '1 second' AS t_start_time
+            FROM staging_events
+            WHERE page = 'NextSong' 
+    ) AS stg_events
 """)
-
 
 # QUERY LISTS
 create_table_queries = [staging_events_table_create, 
@@ -191,7 +218,7 @@ drop_table_queries = [staging_events_table_drop,
 copy_table_queries = [staging_events_copy, 
                       staging_songs_copy]
 
-insert_table_queries = [songplay_table_insert, 
+insert_table_queries = [#songplay_table_insert, 
                         user_table_insert, 
                         song_table_insert, 
                         artist_table_insert, 
