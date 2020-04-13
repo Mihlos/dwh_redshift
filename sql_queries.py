@@ -147,6 +147,21 @@ staging_songs_copy = ("""
 
 # FINAL TABLES
 songplay_table_insert = ("""
+INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
+SELECT events.ts           AS start_time,
+       events.userId       AS user_id,
+       level               AS level,
+       song.song_id        AS song_id,
+       songs.artist_id     AS artist_id,
+       events.sessionId    AS session_id,
+       events.location     AS location,
+       events.userAgent    AS user_agent,
+    FROM staging_events AS events
+    JOIN staging_songs AS songs
+        ON  (events.artist = songs.artist_name)
+        AND (events.song = songs.title)
+        AND (events.length = songs.duration)
+    WHERE page = 'NextSong'
 """)
 
 user_table_insert = ("""
@@ -218,8 +233,8 @@ drop_table_queries = [staging_events_table_drop,
 copy_table_queries = [staging_events_copy, 
                       staging_songs_copy]
 
-insert_table_queries = [#songplay_table_insert, 
-                        user_table_insert, 
+insert_table_queries = [user_table_insert, 
                         song_table_insert, 
                         artist_table_insert, 
-                        time_table_insert]
+                        time_table_insert,
+                        songplay_table_insert]
