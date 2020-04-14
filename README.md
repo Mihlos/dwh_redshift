@@ -50,11 +50,8 @@ into our Redshift DataBase.
 
 # Example query.
 - Who is using the APP from San Francisco-Oakland?
-![alt text][query]
-![alt text][results]
-
-[query]: https://ibb.co/YDXdH1D "Example query"
-[results]: https://ibb.co/zNdDdnY "Example results"
+!https://i.ibb.co/0BK9H6B/example-query.png "Example query"
+!https://i.ibb.co/st7z7mG/example-response.png "Example results"
 
 # How to run the Python scripts
 In your terminal:
