@@ -33,10 +33,13 @@ fields: artist_id, name, location, latitude, longitude
 fields: start_time, hour, day, week, month, year, weekday
 
 # ETL pipeline
-WIP
+- 1- Drop tables if exists.
+- 2- Create tables (staging and final)
+- 3- Load the staging tables (songs and events)
+- 4- Execute the insert statements creating the final tables from staging.
 
 # Files description.
-**create_tables.py** - Script for creating the database and tables.
+**create_tables.py** - Script for creating the database and tables using the instructions in "sql_queries.py".
 
 **sql_queries.py** - Script that contains the needed instructions to drop and craeate tables. Also to insert rows and needed queries.
 
@@ -45,7 +48,16 @@ into our Redshift DataBase.
 
 **test.ipynb** - Notebook for testing purposes, paths, schemas.
 
+# Example query.
+- Who is using the APP from San Francisco-Oakland?
+![alt text][query]
+![alt text][results]
+
+[query]: https://ibb.co/YDXdH1D "Example query"
+[results]: https://ibb.co/zNdDdnY "Example results"
+
 # How to run the Python scripts
 In your terminal:
+* 0- COMPLETE THE DWH.CFG WITH YOUR DATA
 * 1- Execute create_tables.py using: python create_tables.py
 * 2- Execute etl.py: python etl.py
