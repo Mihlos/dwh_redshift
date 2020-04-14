@@ -4,22 +4,52 @@ from sql_queries import create_table_queries, drop_table_queries
 
 
 def drop_tables(cur, conn):
+    """
+    Delete all the tables specified
+    in drop_table_queries list.
+    
+    Parameters:
+        cur  (object): connection cursor.
+        conn (object): connection to our redshift db.
+        
+    Returns:
+        None
+    """
     for query in drop_table_queries:
         cur.execute(query)
         conn.commit()
 
 
 def create_tables(cur, conn):
+    """
+    Create all the tables specified
+    in create_table_queries list.
+    
+    Parameters:
+        cur  (object): connection cursor.
+        conn (object): connection to our redshift db.
+        
+    Returns:
+        None
+    """
     for query in create_table_queries:
         cur.execute(query)
         conn.commit()
 
 
 def main():
+    """
+    Read the configuration from dwh.cfg
+    
+    Create the conection to the Redshift Cluster.
+    
+    Call the functions to drop and create tables.
+    """
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
     
-    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
+    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}"
+                            .format(*config['CLUSTER'].values()))
     cur = conn.cursor()
 
     drop_tables(cur, conn)

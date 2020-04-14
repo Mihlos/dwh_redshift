@@ -4,18 +4,48 @@ from sql_queries import copy_table_queries, insert_table_queries
 
 
 def load_staging_tables(cur, conn):
+    """
+    Insert the data from our Bucket
+    to the staging tables.
+    
+    Parameters:
+        cur  (object): connection cursor.
+        conn (object): connection to our redshift db.
+        
+    Returns:
+        None
+    """
     for query in copy_table_queries:
         cur.execute(query)
         conn.commit()
 
 
 def insert_tables(cur, conn):
+    """
+    Insert the data from our staging
+    tables to the final tables.
+    
+    Parameters:
+        cur  (object): connection cursor.
+        conn (object): connection to our redshift db.
+        
+    Returns:
+        None
+    """
     for query in insert_table_queries:
         cur.execute(query)
         conn.commit()
 
 
 def main():
+    """
+    Read the configuration from dwh.cfg
+    
+    Create the conection to the Redshift Cluster.
+    
+    Call the functions to populate staging and final.
+    """
+    
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
 

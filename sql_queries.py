@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS staging_events
     sessionId         INTEGER,
     song              TEXT,
     status            SMALLINT,
-    ts                BIGINT,
+    ts                BIGINT, --TIMESTAMP throws errors
     userAgent         TEXT,
     userId            INTEGER
 )DISTSTYLE EVEN;
@@ -48,15 +48,15 @@ CREATE TABLE IF NOT EXISTS staging_events
 staging_songs_table_create = ("""
 CREATE TABLE IF NOT EXISTS staging_songs
 (
-    num_songs         SMALLINT NOT NULL,
-    artist_id         CHAR(20) NOT NULL,
-    artist_latitude   DOUBLE PRECISION,
-    artist_longitude  DOUBLE PRECISION,
+    num_songs         SMALLINT,
+    artist_id         CHAR(20),
+    artist_latitude   FLOAT,
+    artist_longitude  FLOAT,
     artist_location   TEXT,
     artist_name       TEXT,
-    song_id           CHAR(20) NOT NULL,
-    title             TEXT NOT NULL,
-    duration          DOUBLE PRECISION NOT NULL,
+    song_id           CHAR(20),
+    title             TEXT,
+    duration          FLOAT,
     year              SMALLINT
 )DISTSTYLE EVEN;
 """)
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS songplays
 user_table_create = ("""
 CREATE TABLE IF NOT EXISTS users
 (
-    user_id          SMALLINT NOT NULL SORTKEY, 
+    user_id          SMALLINT SORTKEY, 
     first_name       TEXT NOT NULL, 
     last_name        TEXT NOT NULL,
     gender           TEXT, 
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS users
 song_table_create = ("""
 CREATE TABLE IF NOT EXISTS songs
 (   
-    song_id          CHAR(20) NOT NULL SORTKEY, 
+    song_id          CHAR(20) SORTKEY, 
     title            TEXT NOT NULL, 
     artist_id        CHAR(20), 
     year             SMALLINT, 
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS songs
 artist_table_create = ("""
 CREATE TABLE IF NOT EXISTS artists
 (
-    artist_id        CHAR(20) NOT NULL SORTKEY, 
+    artist_id        CHAR(20) SORTKEY, 
     name             TEXT NOT NULL, 
     location         TEXT, 
     latitude         DOUBLE PRECISION, 
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS artists
 time_table_create = ("""
 CREATE TABLE IF NOT EXISTS time
 (
-    start_time       BIGINT NOT NULL SORTKEY, 
+    start_time       BIGINT SORTKEY, 
     hour             SMALLINT, 
     day              SMALLINT, 
     week             SMALLINT, 
